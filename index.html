@@ -2,8 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Крутилка Нерчинского острога</title>
+  <title>3D Модели с ползунком</title>
 
+  <!-- Подключаем модуль model-viewer -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
 
   <style>
@@ -39,7 +40,7 @@
 
   <label for="modelRange">Выбор модели:</label>
 
-  <model-viewer id="viewer" src="Ostrog.glb"
+  <model-viewer id="viewer" src="model1.glb"
     camera-controls
     auto-rotate
     auto-rotate-delay="0"
@@ -57,7 +58,7 @@
     const slider = document.getElementById('modelRange');
 
     const models = {
-      1: 'Ostrog.glb',
+      1: 'model1.glb',
       2: 'model2.glb',
       3: 'model3.glb',
     };
