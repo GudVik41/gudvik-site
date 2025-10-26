@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Крутилка Нерчинского острога</title>
 
-  <!-- Подключаем модуль model-viewer -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
 
   <style>
@@ -18,56 +17,26 @@
       height: 100vh;
       font-family: sans-serif;
       color: #fff;
-      gap: 15px;
     }
     model-viewer {
       width: 85vw;
-      height: 70vh;
+      height: 80vh;
       border-radius: 12px;
-      box-shadow: 0 0 25px rgba(255,255,255,0.12);
-    }
-    input[type="range"] {
-      width: 85vw;
-      cursor: pointer;
-    }
-    label {
-      font-size: 18px;
+      box-shadow: 0 0 25px rgba(255,255,255,0.15);
     }
   </style>
 </head>
 
 <body>
 
-  <label for="modelRange">Выбор модели:</label>
-
   <model-viewer id="viewer" src="Ostrog.glb"
     camera-controls
     auto-rotate
-    auto-rotate-delay="0"
     shadow-intensity="1.5"
     exposure="1.4"
     environment-image="https://modelviewer.dev/shared-assets/environments/studio_small_09_1k.hdr"
-    tone-mapping="aces"
-    disable-zoom="false">
+    tone-mapping="aces">
   </model-viewer>
-
-  <input type="range" id="modelRange" min="1" max="3" step="1" value="1">
-
-  <script>
-    const viewer = document.getElementById('viewer');
-    const slider = document.getElementById('modelRange');
-
-    const models = {
-      1: 'Ostrog.glb',
-      2: 'model2.glb',
-      3: 'model3.glb',
-    };
-
-    slider.addEventListener('input', () => {
-      viewer.src = models[slider.value];
-    });
-  </script>
 
 </body>
 </html>
-
