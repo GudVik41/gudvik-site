@@ -21,8 +21,6 @@
     model-viewer {
       width: 85vw;
       height: 80vh;
-      border-radius: 12px;
-      box-shadow: 0 0 25px rgba(255,255,255,0.15);
     }
   </style>
 </head>
@@ -32,10 +30,7 @@
   <model-viewer id="viewer" src="Ostrog.glb"
     camera-controls
     auto-rotate
-    shadow-intensity="1.5"
-    exposure="1.4"
-    environment-image="https://modelviewer.dev/shared-assets/environments/studio_small_09_1k.hdr"
-    tone-mapping="aces">
+    disable-zoom="false">
   </model-viewer>
 
 </body>
