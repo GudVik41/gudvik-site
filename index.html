@@ -1,42 +1,70 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Крутилка Нерчинского острога</title>
+  <meta charset="UTF-8" />
+  <title>3D модель с ползунком</title>
 
+  <!-- Подключаем модель-вьюер -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
 
   <style>
     body {
       margin: 0;
-      background: #111;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      background-color: #111;
+      color: white;
       font-family: sans-serif;
-      color: #fff;
     }
     model-viewer {
-      width: 85vw;
-      height: 80vh;
-      border-radius: 12px;
-      box-shadow: 0 0 25px rgba(255,255,255,0.15);
+      width: 80vw;
+      height: 70vh;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+    input[type="range"] {
+      width: 80vw;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    label {
+      margin-bottom: 10px;
+      font-size: 1.1rem;
     }
   </style>
 </head>
 
 <body>
-
-  <model-viewer id="viewer" src="Ostrog.glb"
+  <label for="modelRange">Выбери модель:</label>
+  <model-viewer id="viewer" src="model1.glb"
     camera-controls
     auto-rotate
-    shadow-intensity="1.5"
-    exposure="1.4"
-    environment-image="https://modelviewer.dev/shared-assets/environments/studio_small_09_1k.hdr"
-    tone-mapping="aces">
+    shadow-intensity="1"
+    exposure="1">
   </model-viewer>
 
+  <input type="range" id="modelRange" min="1" max="3" step="1" value="1" />
+
+  <script>
+    const viewer = document.getElementById('viewer');
+    const slider = document.getElementById('modelRange');
+
+    // Список моделей
+    const models = {
+      1: 'model1.glb',
+      2: 'model2.glb',
+      3: 'model3.glb'
+    };
+
+    // При изменении ползунка — подгружаем новую модель
+    slider.addEventListener('input', () => {
+      const model = models[slider.value];
+      viewer.src = model;
+    });
+  </script>
 </body>
 </html>
