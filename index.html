@@ -1,71 +1,203 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Нерчинский острог</title>
-
-  <!-- Подключаем модель-вьюер -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ostrog — 3D</title>
   <style>
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-color: #111;
-      color: white;
-      font-family: sans-serif;
-    }
-    model-viewer {
-      width: 80vw;
-      height: 70vh;
-      border-radius: 1rem;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-    }
-    input[type="range"] {
-      width: 80vw;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-    label {
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-    }
+    html,body{height:100%;margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    #container{width:100%;height:100%;display:block;overflow:hidden;position:relative;background:#111}
+    #overlay{position:absolute;left:12px;top:12px;color:#fff;z-index:2;background:rgba(0,0,0,0.35);padding:10px;border-radius:8px;backdrop-filter:blur(4px)}
+    #title{font-weight:700;font-size:18px;margin-bottom:6px}
+    #info{font-size:13px;opacity:0.9}
+    #credits{position:absolute;right:12px;bottom:12px;color:#ddd;z-index:2;font-size:12px;background:rgba(0,0,0,0.25);padding:6px;border-radius:6px}
+    #progress{width:200px;height:6px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-top:8px}
+    #bar{height:100%;width:0%;background:linear-gradient(90deg,rgba(255,255,255,0.15),rgba(255,255,255,0.35));}
+    a {color:#9bd; text-decoration:none}
+    .small{font-size:12px;opacity:0.9}
   </style>
 </head>
-
 <body>
-  <label for="modelRange">Выбери модель:</label>
-  <model-viewer id="viewer" src="model1.glb"
-    camera-controls
-    auto-rotate
-    shadow-intensity="1"
-    exposure="1">
-  </model-viewer>
+  <div id="container">
+    <div id="overlay">
+      <div id="title">Ostrog</div>
+      <div id="info">Модель: <b>ostrog.glb</b><br>Используйте мышь или сенсорный экран: вращение — левый клик/перетаскивание, масштаб — прокрутка/щипок, сдвиг — правая кнопка / два пальца.</div>
+      <div id="progress"><div id="bar"></div></div>
+      <div class="small" style="margin-top:6px">Подсказка: поместите <code>ostrog.glb</code> в ту же папку, что и <code>index.html</code>.</div>
+    </div>
 
-  <input type="range" id="modelRange" min="1" max="3" step="1" value="1" />
+    <div id="credits">GitHub Pages · Three.js</div>
+  </div>
 
-  <script>
-    const viewer = document.getElementById('viewer');
-    const slider = document.getElementById('modelRange');
+  <!-- three.js как модуль из CDN. Если хотите зафиксировать версию — замените @latest на конкретную версию -->
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.152.2/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.152.2/examples/jsm/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'https://unpkg.com/three@0.152.2/examples/jsm/loaders/DRACOLoader.js';
 
-    // Список моделей
-    const models = {
-      1: 'Ostrog.glb',
-      2: 'model2.glb',
-      3: 'model3.glb'
-    };
+    const container = document.getElementById('container');
 
-    // При изменении ползунка — подгружаем новую модель
-    slider.addEventListener('input', () => {
-      const model = models[slider.value];
-      viewer.src = model;
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputEncoding = THREE.sRGBEncoding; // чтобы цвета выглядели правильно
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    // Scene + Camera
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0b0b0b);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(0, 0.7, 2.6);
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.screenSpacePanning = false;
+    controls.minDistance = 0.4;
+    controls.maxDistance = 6;
+
+    // Свет — комбинируем несколько источников для ровного, "не тёмного" освещения
+    // Глобальная подсветка
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.45);
+    hemi.position.set(0, 1, 0);
+    scene.add(hemi);
+
+    // Направленный свет (имитирует солнце) — ключевой свет
+    const dir = new THREE.DirectionalLight(0xffffff, 1.0);
+    dir.position.set(3, 5, 2);
+    dir.castShadow = false;
+    dir.shadow.bias = -0.0001;
+    scene.add(dir);
+
+    // Мягкий заполняющий свет спереди
+    const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+    fill.position.set(-2, -1, -1);
+    scene.add(fill);
+
+    // Немного окружного света для деталей
+    const ambient = new THREE.AmbientLight(0xffffff, 0.18);
+    scene.add(ambient);
+
+    // Лёгкий эффект точечного света для блеска
+    const point = new THREE.PointLight(0xffffff, 0.25, 10);
+    point.position.set(0, 2, 1);
+    scene.add(point);
+
+    // Загрузка модели
+    const loader = new GLTFLoader();
+
+    // Поддержка Draco (если модель сжата Draco) — не обязателен, но полезен
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('https://unpkg.com/three@0.152.2/examples/jsm/libs/draco/');
+    loader.setDRACOLoader(draco);
+
+    const progressBar = document.getElementById('bar');
+
+    // Путь к файлу модели — ожидаем, что пользователь положит ostrog.glb рядом с index.html
+    const MODEL_PATH = './ostrog.glb';
+
+    let modelRoot = null;
+
+    loader.load(MODEL_PATH,
+      (gltf) => {
+        modelRoot = gltf.scene || gltf.scenes[0];
+        modelRoot.name = 'Ostrog';
+        // Приводим модель к центру и масштабу так, чтобы она помещалась в камеру
+        const box = new THREE.Box3().setFromObject(modelRoot);
+        const size = box.getSize(new THREE.Vector3()).length();
+        const center = box.getCenter(new THREE.Vector3());
+
+        // Сдвигаем в ноль
+        modelRoot.position.x += (modelRoot.position.x - center.x);
+        modelRoot.position.y += (modelRoot.position.y - center.y);
+        modelRoot.position.z += (modelRoot.position.z - center.z);
+
+        // Масштабируем по размеру
+        const desiredSize = 1.6; // подгон
+        const scale = desiredSize / size;
+        modelRoot.scale.setScalar(scale);
+
+        // Немного сглаживаем материалы: если есть металлический материал — увеличить roughness/metalness
+        modelRoot.traverse((c) => {
+          if (c.isMesh) {
+            c.castShadow = false;
+            c.receiveShadow = false;
+            if (c.material) {
+              c.material.roughness = Math.min(1, (c.material.roughness !== undefined) ? c.material.roughness : 0.5);
+              // Убедимся, что материал использует правильное цветовое пространство
+              if (c.material.map) c.material.map.encoding = THREE.sRGBEncoding;
+              c.material.needsUpdate = true;
+            }
+          }
+        });
+
+        scene.add(modelRoot);
+
+        // Немного приближаем камеру к модели после загрузки
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        progressBar.style.width = '100%';
+      },
+      (xhr) => {
+        if (xhr.lengthComputable) {
+          const percent = (xhr.loaded / xhr.total) * 100;
+          progressBar.style.width = percent.toFixed(1) + '%';
+        }
+      },
+      (err) => {
+        console.error('Ошибка загрузки модели:', err);
+        progressBar.style.width = '0%';
+        progressBar.style.background = 'linear-gradient(90deg,#ff6b6b,#ff9c6b)';
+        const overlay = document.getElementById('overlay');
+        const errEl = document.createElement('div');
+        errEl.style.marginTop = '8px';
+        errEl.style.color = '#ffb3b3';
+        errEl.innerText = 'Не удалось загрузить ostrog.glb — убедитесь, что файл в той же папке и доступен.';
+        overlay.appendChild(errEl);
+      }
+    );
+
+    // Простая сетка-плоскость для ориентира (опционально)
+    const grid = new THREE.GridHelper(6, 12, 0x222222, 0x151515);
+    grid.material.opacity = 0.35;
+    grid.material.transparent = true;
+    scene.add(grid);
+
+    // Анимация
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Обработка ресайза
+    window.addEventListener('resize', onWindowResize);
+    function onWindowResize() {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    }
+
+    // On-screen debug: нажмите H чтобы включить/выключить сетку (полезно при отладке)
+    window.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'h') grid.visible = !grid.visible;
     });
+
   </script>
 </body>
 </html>
-
