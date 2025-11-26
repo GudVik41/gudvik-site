@@ -21,9 +21,9 @@
   <div id="container">
     <div id="overlay">
       <div id="title">Ostrog</div>
-      <div id="info">Модель: <b>ostrog.glb</b><br>Используйте мышь или сенсорный экран: вращение — левый клик/перетаскивание, масштаб — прокрутка/щипок, сдвиг — правая кнопка / два пальца.</div>
+      <div id="info">Модель: <b>Ostrog.glb</b><br>Используйте мышь или сенсорный экран: вращение — левый клик/перетаскивание, масштаб — прокрутка/щипок, сдвиг — правая кнопка / два пальца.</div>
       <div id="progress"><div id="bar"></div></div>
-      <div class="small" style="margin-top:6px">Подсказка: поместите <code>ostrog.glb</code> в ту же папку, что и <code>index.html</code>.</div>
+      <div class="small" style="margin-top:6px">Подсказка: поместите <code>Ostrog.glb</code> в ту же папку, что и <code>index.html</code>.</div>
     </div>
 
     <div id="credits">GitHub Pages · Three.js</div>
@@ -99,8 +99,8 @@
 
     const progressBar = document.getElementById('bar');
 
-    // Путь к файлу модели — ожидаем, что пользователь положит ostrog.glb рядом с index.html
-    const MODEL_PATH = './ostrog.glb';
+    // Путь к файлу модели — ожидаем, что пользователь положит Ostrog.glb рядом с index.html
+    const MODEL_PATH = './Ostrog.glb';
 
     let modelRoot = null;
 
@@ -159,7 +159,7 @@
         const errEl = document.createElement('div');
         errEl.style.marginTop = '8px';
         errEl.style.color = '#ffb3b3';
-        errEl.innerText = 'Не удалось загрузить ostrog.glb — убедитесь, что файл в той же папке и доступен.';
+        errEl.innerText = 'Не удалось загрузить Ostrog.glb — убедитесь, что файл в той же папке и доступен.';
         overlay.appendChild(errEl);
       }
     );
@@ -201,3 +201,4 @@
   </script>
 </body>
 </html>
+
